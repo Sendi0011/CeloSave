@@ -5,7 +5,7 @@ import "openzeppelin-contracts/contracts/token/ERC20/IERC20.sol";
 import "openzeppelin-contracts/contracts/access/Ownable.sol";
 
 /* ========== ROTATIONAL POOL ========== */
-contract BaseSafeRotational is Ownable(msg.sender) {
+contract CeloSaveRotational is Ownable(msg.sender) {
     address[] public members;
     mapping(address => bool) public hasDeposited;
     uint256 public totalMembers;
