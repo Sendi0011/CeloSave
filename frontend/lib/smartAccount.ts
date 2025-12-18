@@ -19,8 +19,7 @@ export async function getSmartAccount(
       return null;
     }
 
-    // Get the bundler and paymaster URLs
-    // You can use Biconomy's free tier or your own keys
+    
     const bundlerUrl = BICONOMY_BUNDLER_URL || `https://bundler.biconomy.io/api/v2/${chainId}/nJPK7B3ru.dd7f7861-190d-41bd-af80-6877f74b8f44`;
     const paymasterUrl = BICONOMY_PAYMASTER_URL || `https://paymaster.biconomy.io/api/v1/${chainId}/YOUR_PAYMASTER_KEY`;
 
