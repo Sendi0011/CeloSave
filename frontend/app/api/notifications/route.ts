@@ -113,3 +113,51 @@ export async function POST(req: NextRequest) {
   }
 }
 
+// Helper to send browser notification (optional)
+async function sendBrowserNotification(
+  userAddress: string,
+  title: string,
+  message: string
+) {
+  // This would integrate with a push notification service
+  // For now, it's just a placeholder
+  console.log(`Browser notification for ${userAddress}: ${title}`)
+}
+
+// ========================================
+// app/api/notifications/[id]/route.ts
+// ========================================
+
+// PATCH - Mark notification as read
+export async function PATCH(
+  req: NextRequest,
+  { params }: { params: { id: string } }
+) {
+  try {
+    const body = await req.json()
+    const { read } = body
+
+    const { data, error } = await supabase
+      .from('notifications')
+      .update({ read })
+      .eq('id', params.id)
+      .select()
+      .single()
+
+    if (error) {
+      return NextResponse.json(
+        { error: error.message },
+        { status: 500 }
+      )
+    }
+
+    return NextResponse.json(data)
+  } catch (error) {
+    console.error('Notification update error:', error)
+    return NextResponse.json(
+      { error: error instanceof Error ? error.message : 'Unknown error' },
+      { status: 500 }
+    )
+  }
+}
+
