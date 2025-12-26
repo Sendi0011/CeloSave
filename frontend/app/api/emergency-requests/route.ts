@@ -216,3 +216,74 @@ export async function PATCH(req: NextRequest) {
   }
 }
 
+// POST - Record vote
+export async function PUT(req: NextRequest) {
+  try {
+    const body = await req.json()
+
+    const {
+      poolId,
+      requestId,
+      voterAddress,
+      support,
+      txHash,
+    } = body
+
+    if (!poolId || requestId === undefined || !voterAddress || support === undefined) {
+      return NextResponse.json(
+        { error: 'Missing required fields' },
+        { status: 400 }
+      )
+    }
+
+    // Get the emergency request UUID
+    const { data: request, error: requestError } = await supabase
+      .from('emergency_requests')
+      .select('id, requester_address')
+      .eq('pool_id', poolId)
+      .eq('request_id', requestId)
+      .single()
+
+    if (requestError || !request) {
+      return NextResponse.json(
+        { error: 'Request not found' },
+        { status: 404 }
+      )
+    }
+
+    // Record vote using the function
+    const { data, error } = await supabase.rpc('record_emergency_vote', {
+      p_emergency_request_id: request.id,
+      p_voter_address: voterAddress,
+      p_support: support,
+      p_tx_hash: txHash,
+    })
+
+    if (error) {
+      console.error('Failed to record vote:', error)
+      return NextResponse.json(
+        { error: error.message },
+        { status: 500 }
+      )
+    }
+
+    // Log activity
+    await supabase.from('pool_activity').insert([
+      {
+        pool_id: poolId,
+        activity_type: 'emergency_voted',
+        user_address: voterAddress.toLowerCase(),
+        description: `Voted ${support ? 'for' : 'against'} emergency request #${requestId}`,
+        tx_hash: txHash,
+      },
+    ])
+
+    return NextResponse.json({ success: true, voteId: data })
+  } catch (error) {
+    console.error('Vote recording error:', error)
+    return NextResponse.json(
+      { error: error instanceof Error ? error.message : 'Unknown error' },
+      { status: 500 }
+    )
+  }
+}
