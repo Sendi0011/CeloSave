@@ -71,3 +71,109 @@ export async function POST(req: NextRequest) {
   }
 }
 
+// GET - Fetch emergency requests
+export async function GET(req: NextRequest) {
+  try {
+    const poolId = req.nextUrl.searchParams.get('poolId')
+    const requestId = req.nextUrl.searchParams.get('requestId')
+
+    if (requestId && poolId) {
+      // Fetch single request with votes
+      const { data, error } = await supabase
+        .from('emergency_requests')
+        .select(`
+          *,
+          emergency_votes (
+            id,
+            voter_address,
+            support,
+            created_at,
+            tx_hash
+          )
+        `)
+        .eq('pool_id', poolId)
+        .eq('request_id', parseInt(requestId))
+        .single()
+
+      if (error) {
+        return NextResponse.json(
+          { error: 'Request not found' },
+          { status: 404 }
+        )
+      }
+
+      return NextResponse.json(data)
+    } else if (poolId) {
+      // Fetch all requests for a pool
+      const { data, error } = await supabase
+        .from('emergency_requests')
+        .select(`
+          *,
+          emergency_votes (
+            id,
+            voter_address,
+            support,
+            created_at
+          )
+        `)
+        .eq('pool_id', poolId)
+        .order('created_at', { ascending: false })
+
+      if (error) {
+        throw error
+      }
+
+      return NextResponse.json(data || [])
+    } else {
+      return NextResponse.json(
+        { error: 'poolId required' },
+        { status: 400 }
+      )
+    }
+  } catch (error) {
+    console.error('Emergency request fetch error:', error)
+    return NextResponse.json(
+      { error: error instanceof Error ? error.message : 'Unknown error' },
+      { status: 500 }
+    )
+  }
+}
+
+// PATCH - Update emergency request (voting results)
+export async function PATCH(req: NextRequest) {
+  try {
+    const body = await req.json()
+    const poolId = req.nextUrl.searchParams.get('poolId')
+    const requestId = req.nextUrl.searchParams.get('requestId')
+
+    if (!poolId || !requestId) {
+      return NextResponse.json(
+        { error: 'poolId and requestId required' },
+        { status: 400 }
+      )
+    }
+
+    const { votesFor, votesAgainst, executed, rejected } = body
+
+    const { data, error } = await supabase
+      .from('emergency_requests')
+      .update({
+        votes_for: votesFor,
+        votes_against: votesAgainst,
+        executed,
+        rejected,
+        updated_at: new Date().toISOString(),
+      })
+      .eq('pool_id', poolId)
+      .eq('request_id', parseInt(requestId))
+      .select()
+      .single()
+
+    if (error) {
+      return NextResponse.json(
+        { error: 'Failed to update request' },
+        { status: 500 }
+      )
+    }
+
+   
