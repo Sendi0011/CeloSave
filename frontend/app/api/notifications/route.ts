@@ -55,3 +55,49 @@ export async function GET(req: NextRequest) {
   }
 }
 
+// POST - Create notification (for manual triggers)
+export async function POST(req: NextRequest) {
+  try {
+    const body = await req.json()
+
+    const {
+      userAddress,
+      poolId,
+      type,
+      title,
+      message,
+      actionUrl,
+    } = body
+
+    if (!userAddress || !type || !title || !message) {
+      return NextResponse.json(
+        { error: 'Missing required fields' },
+        { status: 400 }
+      )
+    }
+
+    const { data, error } = await supabase
+      .from('notifications')
+      .insert([
+        {
+          user_address: userAddress.toLowerCase(),
+          pool_id: poolId || null,
+          type,
+          title,
+          message,
+          action_url: actionUrl || null,
+          read: false,
+        },
+      ])
+      .select()
+      .single()
+
+    if (error) {
+      console.error('Notification creation error:', error)
+      return NextResponse.json(
+        { error: error.message },
+        { status: 500 }
+      )
+    }
+
+   
