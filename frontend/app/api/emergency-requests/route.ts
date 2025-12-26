@@ -176,4 +176,43 @@ export async function PATCH(req: NextRequest) {
       )
     }
 
-   
+    // If executed, increment emergency usage count and log activity
+    if (executed && data) {
+      await supabase.rpc('increment_emergency_usage', {
+        p_pool_id: poolId,
+        p_member_address: data.requester_address,
+      })
+
+      await supabase.from('pool_activity').insert([
+        {
+          pool_id: poolId,
+          activity_type: 'emergency_executed',
+          user_address: data.requester_address,
+          amount: data.amount,
+          description: `Emergency withdrawal executed`,
+        },
+      ])
+    }
+
+    // If rejected, log activity
+    if (rejected && data) {
+      await supabase.from('pool_activity').insert([
+        {
+          pool_id: poolId,
+          activity_type: 'emergency_rejected',
+          user_address: data.requester_address,
+          description: `Emergency withdrawal rejected`,
+        },
+      ])
+    }
+
+    return NextResponse.json(data)
+  } catch (error) {
+    console.error('Emergency request update error:', error)
+    return NextResponse.json(
+      { error: error instanceof Error ? error.message : 'Unknown error' },
+      { status: 500 }
+    )
+  }
+}
+
