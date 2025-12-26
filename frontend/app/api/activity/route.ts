@@ -99,4 +99,20 @@ export async function POST(req: NextRequest) {
       )
     }
 
-   
+    // Create notifications for relevant users
+    if (data) {
+      await createNotificationsForActivity(data)
+    }
+
+    return NextResponse.json(data, { status: 201 })
+  } catch (error) {
+    console.error('Activity creation error:', error)
+    return NextResponse.json(
+      { error: error instanceof Error ? error.message : 'Unknown error' },
+      { status: 500 }
+    )
+  }
+}
+
+
+}
