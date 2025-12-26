@@ -174,3 +174,88 @@ function calculateSavingsTrend(activities: any[], timeframe: string) {
   }))
 }
 
+// Helper: Calculate monthly stats
+function calculateMonthlyStats(activities: any[]) {
+  const monthlyData: Record<string, { deposits: number; withdrawals: number }> = {}
+
+  activities.forEach((activity) => {
+    const month = new Date(activity.created_at).toISOString().slice(0, 7) // YYYY-MM
+    if (!monthlyData[month]) {
+      monthlyData[month] = { deposits: 0, withdrawals: 0 }
+    }
+
+    const amount = activity.amount || 0
+    if (activity.activity_type === 'deposit' || activity.activity_type === 'contribution') {
+      monthlyData[month].deposits += amount
+    } else if (activity.activity_type === 'withdrawal') {
+      monthlyData[month].withdrawals += amount
+    }
+  })
+
+  return Object.entries(monthlyData)
+    .sort(([a], [b]) => a.localeCompare(b))
+    .slice(-6) // Last 6 months
+    .map(([month, data]) => ({
+      month: formatMonth(month),
+      deposits: data.deposits,
+      withdrawals: data.withdrawals,
+      net: data.deposits - data.withdrawals,
+    }))
+}
+
+// Helper: Calculate performance metrics
+function calculatePerformanceMetrics(activities: any[], monthlyStats: any[]) {
+  const deposits = activities.filter(
+    (a) => a.activity_type === 'deposit' || a.activity_type === 'contribution'
+  )
+
+  const monthlyTotals = monthlyStats.map((m) => ({
+    month: m.month,
+    amount: m.deposits,
+  }))
+
+  const bestMonth = monthlyTotals.reduce(
+    (best, current) => (current.amount > best.amount ? current : best),
+    { month: 'N/A', amount: 0 }
+  )
+
+  const averageMonthly =
+    monthlyTotals.reduce((sum, m) => sum + m.amount, 0) / (monthlyTotals.length || 1)
+
+  const projectedYearly = averageMonthly * 12
+
+  // Calculate growth rate (comparing last month to average)
+  const lastMonth = monthlyTotals[monthlyTotals.length - 1]?.amount || 0
+  const growthRate = averageMonthly
+    ? ((lastMonth - averageMonthly) / averageMonthly) * 100
+    : 0
+
+  return {
+    bestMonth,
+    averageMonthly,
+    projectedYearly,
+    growthRate,
+  }
+}
+
+// Helper: Format date based on timeframe
+function formatDate(dateString: string, timeframe: string): string {
+  const date = new Date(dateString)
+  switch (timeframe) {
+    case 'week':
+      return date.toLocaleDateString('en-US', { weekday: 'short' })
+    case 'month':
+      return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+    case 'year':
+      return date.toLocaleDateString('en-US', { month: 'short' })
+    default:
+      return dateString
+  }
+}
+
+// Helper: Format month
+function formatMonth(monthString: string): string {
+  const [year, month] = monthString.split('-')
+  const date = new Date(parseInt(year), parseInt(month) - 1)
+  return date.toLocaleDateString('en-US', { month: 'short', year: '2-digit' })
+}
