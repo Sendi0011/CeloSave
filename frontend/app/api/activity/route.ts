@@ -216,5 +216,11 @@ async function createNotificationsForActivity(activity: any) {
         break
     }
 
-    
+    // Insert all notifications
+    if (notifications.length > 0) {
+      await supabase.from('notifications').insert(notifications)
+    }
+  } catch (error) {
+    console.error('Failed to create notifications:', error)
+  }
 }
