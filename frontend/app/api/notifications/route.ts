@@ -100,4 +100,16 @@ export async function POST(req: NextRequest) {
       )
     }
 
-   
+    // Trigger browser push notification if user has permission
+    await sendBrowserNotification(userAddress, title, message)
+
+    return NextResponse.json(data, { status: 201 })
+  } catch (error) {
+    console.error('Notification creation error:', error)
+    return NextResponse.json(
+      { error: error instanceof Error ? error.message : 'Unknown error' },
+      { status: 500 }
+    )
+  }
+}
+
