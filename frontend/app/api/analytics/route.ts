@@ -46,4 +46,57 @@ export async function GET(req: NextRequest) {
 
     if (activitiesError) throw activitiesError
 
+    // Calculate overview stats
+    const activePoolsCount = userPools?.filter(
+      (p) => p.pools?.status === 'active'
+    ).length || 0
+
+    const completedPoolsCount = userPools?.filter(
+      (p) => p.pools?.status === 'completed'
+    ).length || 0
+
+    const totalSaved = userPools?.reduce((sum, p) => {
+      return sum + (p.pools?.total_saved || 0)
+    }, 0) || 0
+
+    const totalContributions = activities?.filter(
+      (a) => a.activity_type === 'deposit' || a.activity_type === 'contribution'
+    ).length || 0
+
+    const onTimeContributions = userPools?.filter(
+      (p) => p.status === 'paid'
+    ).length || 0
+
+    const totalExpectedContributions = userPools?.length || 1
+
+    const onTimePaymentRate = Math.round(
+      (onTimeContributions / totalExpectedContributions) * 100
+    )
+
+    const emergencyWithdrawals = activities?.filter(
+      (a) => a.activity_type === 'emergency_executed'
+    ).length || 0
+
+    // Calculate reputation score
+    let reputationScore = 50 // Base score
+    reputationScore += Math.min(onTimePaymentRate * 0.4, 40) // Up to 40 points for on-time
+    reputationScore += Math.min(completedPoolsCount * 2, 20) // Up to 20 points for completed pools
+    reputationScore -= emergencyWithdrawals * 5 // Minus 5 points per emergency
+    reputationScore = Math.max(0, Math.min(100, reputationScore)) // Clamp between 0-100
+
+    // Calculate savings trend based on timeframe
+    const savingsTrend = calculateSavingsTrend(activities, timeframe)
+
+    // Pool breakdown
+    const poolBreakdown = userPools?.map((p) => ({
+      name: p.pools?.name || 'Unknown Pool',
+      type: p.pools?.type || 'unknown',
+      amount: p.contribution_amount || 0,
+      progress: p.pools?.progress || 0,
+      status: p.pools?.status || 'unknown',
+    })) || []
+
+    // Monthly stats
+    const monthlyStats = calculateMonthlyStats(activities)
+
     
