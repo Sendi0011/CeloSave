@@ -53,3 +53,50 @@ export async function GET(req: NextRequest) {
   }
 }
 
+// POST - Create activity (called after blockchain events)
+export async function POST(req: NextRequest) {
+  try {
+    const body = await req.json()
+
+    const {
+      poolId,
+      activityType,
+      userAddress,
+      amount,
+      description,
+      txHash,
+    } = body
+
+    // Validate required fields
+    if (!poolId || !activityType) {
+      return NextResponse.json(
+        { error: 'poolId and activityType are required' },
+        { status: 400 }
+      )
+    }
+
+    // Insert activity
+    const { data, error } = await supabase
+      .from('pool_activity')
+      .insert([
+        {
+          pool_id: poolId,
+          activity_type: activityType,
+          user_address: userAddress?.toLowerCase() || null,
+          amount: amount || null,
+          description: description || null,
+          tx_hash: txHash || null,
+        },
+      ])
+      .select()
+      .single()
+
+    if (error) {
+      console.error('Activity creation error:', error)
+      return NextResponse.json(
+        { error: error.message },
+        { status: 500 }
+      )
+    }
+
+   
