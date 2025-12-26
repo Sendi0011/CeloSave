@@ -99,4 +99,78 @@ export async function GET(req: NextRequest) {
     // Monthly stats
     const monthlyStats = calculateMonthlyStats(activities)
 
-    
+    // Performance metrics
+    const performanceMetrics = calculatePerformanceMetrics(activities, monthlyStats)
+
+    const overview = {
+      totalSaved,
+      activePoolsCount,
+      completedPoolsCount,
+      onTimePaymentRate,
+      totalContributions,
+      averagePoolSize: userPools?.length ? totalSaved / userPools.length : 0,
+      emergencyWithdrawals,
+      reputationScore: Math.round(reputationScore),
+    }
+
+    return NextResponse.json({
+      overview,
+      savingsTrend,
+      poolBreakdown,
+      monthlyStats,
+      performanceMetrics,
+    })
+  } catch (error) {
+    console.error('Analytics fetch error:', error)
+    return NextResponse.json(
+      { error: error instanceof Error ? error.message : 'Unknown error' },
+      { status: 500 }
+    )
+  }
+}
+
+// Helper: Calculate savings trend
+function calculateSavingsTrend(activities: any[], timeframe: string) {
+  const now = new Date()
+  let startDate = new Date()
+
+  switch (timeframe) {
+    case 'week':
+      startDate.setDate(now.getDate() - 7)
+      break
+    case 'month':
+      startDate.setMonth(now.getMonth() - 1)
+      break
+    case 'year':
+      startDate.setFullYear(now.getFullYear() - 1)
+      break
+  }
+
+  const relevantActivities = activities.filter((a) => {
+    const activityDate = new Date(a.created_at)
+    return activityDate >= startDate && activityDate <= now
+  })
+
+  const dailyData: Record<string, number> = {}
+  let cumulative = 0
+
+  relevantActivities.forEach((activity) => {
+    const date = new Date(activity.created_at).toISOString().split('T')[0]
+    const amount = activity.amount || 0
+
+    if (activity.activity_type === 'deposit' || activity.activity_type === 'contribution') {
+      cumulative += amount
+    } else if (activity.activity_type === 'withdrawal') {
+      cumulative -= amount
+    }
+
+    dailyData[date] = cumulative
+  })
+
+  return Object.entries(dailyData).map(([date, cumulative]) => ({
+    date: formatDate(date, timeframe),
+    amount: cumulative,
+    cumulative,
+  }))
+}
+
