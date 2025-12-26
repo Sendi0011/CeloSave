@@ -114,5 +114,107 @@ export async function POST(req: NextRequest) {
   }
 }
 
+// Helper function to create notifications based on activity
+async function createNotificationsForActivity(activity: any) {
+  try {
+    // Get pool details and members
+    const { data: pool } = await supabase
+      .from('pools')
+      .select(`
+        *,
+        pool_members (
+          member_address
+        )
+      `)
+      .eq('id', activity.pool_id)
+      .single()
 
+    if (!pool) return
+
+    const notifications: any[] = []
+
+    // Determine who should be notified based on activity type
+    switch (activity.activity_type) {
+      case 'deposit':
+      case 'contribution':
+        // Notify all other members about deposits
+        pool.pool_members.forEach((member: any) => {
+          if (member.member_address.toLowerCase() !== activity.user_address?.toLowerCase()) {
+            notifications.push({
+              user_address: member.member_address.toLowerCase(),
+              pool_id: pool.id,
+              type: 'deposit',
+              title: '💰 New Deposit',
+              message: `A member deposited ${activity.amount || 0} ETH to ${pool.name}`,
+              action_url: `/dashboard/group/${pool.id}`,
+              read: false,
+            })
+          }
+        })
+        break
+
+      case 'emergency_requested':
+        // Notify all members about emergency requests
+        pool.pool_members.forEach((member: any) => {
+          if (member.member_address.toLowerCase() !== activity.user_address?.toLowerCase()) {
+            notifications.push({
+              user_address: member.member_address.toLowerCase(),
+              pool_id: pool.id,
+              type: 'emergency',
+              title: '🚨 Emergency Withdrawal Requested',
+              message: `A member requested emergency withdrawal from ${pool.name}. Your vote is needed!`,
+              action_url: `/dashboard/group/${pool.id}?tab=emergency`,
+              read: false,
+            })
+          }
+        })
+        break
+
+      case 'emergency_voted':
+        // Notify requester about votes
+        if (activity.user_address) {
+          notifications.push({
+            user_address: activity.user_address.toLowerCase(),
+            pool_id: pool.id,
+            type: 'vote',
+            title: '👍 Vote Received',
+            message: `A member voted on your emergency request in ${pool.name}`,
+            action_url: `/dashboard/group/${pool.id}?tab=emergency`,
+            read: false,
+          })
+        }
+        break
+
+      case 'payout':
+        // Notify recipient about payout
+        if (activity.user_address) {
+          notifications.push({
+            user_address: activity.user_address.toLowerCase(),
+            pool_id: pool.id,
+            type: 'payout',
+            title: '🎉 Payout Received!',
+            message: `You received ${activity.amount || 0} ETH from ${pool.name}`,
+            action_url: `/dashboard/group/${pool.id}`,
+            read: false,
+          })
+        }
+        break
+
+      case 'target_reached':
+        // Notify all members
+        pool.pool_members.forEach((member: any) => {
+          notifications.push({
+            user_address: member.member_address.toLowerCase(),
+            pool_id: pool.id,
+            type: 'milestone',
+            title: '🎯 Target Reached!',
+            message: `${pool.name} has reached its savings target!`,
+            action_url: `/dashboard/group/${pool.id}`,
+            read: false,
+          })
+        })
+        break
+    }
+
+    
 }
