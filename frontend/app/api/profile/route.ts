@@ -133,5 +133,20 @@ export async function POST(req: NextRequest) {
       .select()
       .single()
 
-    
+    if (error) {
+      // If badge already exists, just return success
+      if (error.code === '23505') {
+        return NextResponse.json({ message: 'Badge already earned' })
+      }
+      throw error
+    }
+
+    return NextResponse.json(data)
+  } catch (error) {
+    console.error('Badge award error:', error)
+    return NextResponse.json(
+      { error: error instanceof Error ? error.message : 'Unknown error' },
+      { status: 500 }
+    )
+  }
 }
