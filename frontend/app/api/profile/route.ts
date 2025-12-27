@@ -118,5 +118,20 @@ export async function POST(req: NextRequest) {
     // Ensure profile exists
     await ensureMemberProfile(wallet_address)
 
+    // Award badge (will not duplicate due to UNIQUE constraint)
+    const { data, error } = await supabase
+      .from('member_badges')
+      .insert([
+        {
+          wallet_address: wallet_address.toLowerCase(),
+          badge_type,
+          badge_name,
+          badge_description: badge_description || null,
+          badge_icon: badge_icon || null,
+        },
+      ])
+      .select()
+      .single()
+
     
 }
