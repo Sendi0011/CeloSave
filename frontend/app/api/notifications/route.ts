@@ -189,7 +189,3 @@ export async function DELETE(
   }
 }
 
-// ========================================
-// app/api/notifications/mark-all-read/route.ts
-// ========================================
-
