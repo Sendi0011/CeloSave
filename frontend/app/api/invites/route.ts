@@ -161,3 +161,17 @@ export async function GET(req: NextRequest) {
   }
 }
 
+// PATCH - Use invite (join via invite code)
+export async function PATCH(req: NextRequest) {
+  try {
+    const body = await req.json()
+    const { invite_code, invitee_address } = body
+
+    if (!invite_code || !invitee_address) {
+      return NextResponse.json(
+        { error: 'Missing invite_code or invitee_address' },
+        { status: 400 }
+      )
+    }
+
+  }
