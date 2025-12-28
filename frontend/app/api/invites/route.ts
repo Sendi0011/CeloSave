@@ -237,4 +237,32 @@ export async function PATCH(req: NextRequest) {
 
     if (useError) throw useError
 
-   
+    // Increment uses count
+    const { error: updateError } = await supabase
+      .from('group_invites')
+      .update({ uses_count: invite.uses_count + 1 })
+      .eq('id', invite.id)
+
+    if (updateError) throw updateError
+
+    // Return pool details for joining
+    const { data: pool } = await supabase
+      .from('pools')
+      .select('*')
+      .eq('id', invite.pool_id)
+      .single()
+
+    return NextResponse.json({
+      success: true,
+      pool,
+      invite,
+    })
+  } catch (error) {
+    console.error('Invite use error:', error)
+    return NextResponse.json(
+      { error: error instanceof Error ? error.message : 'Unknown error' },
+      { status: 500 }
+    )
+  }
+}
+
