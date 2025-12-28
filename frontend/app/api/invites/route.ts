@@ -210,4 +210,31 @@ export async function PATCH(req: NextRequest) {
       )
     }
 
-  }
+    // Check if user already used this invite
+    const { data: existingUse } = await supabase
+      .from('invite_uses')
+      .select('id')
+      .eq('invite_id', invite.id)
+      .eq('invitee_address', invitee_address.toLowerCase())
+      .single()
+
+    if (existingUse) {
+      return NextResponse.json(
+        { error: 'You have already used this invite' },
+        { status: 400 }
+      )
+    }
+
+    // Record invite use
+    const { error: useError } = await supabase
+      .from('invite_uses')
+      .insert([
+        {
+          invite_id: invite.id,
+          invitee_address: invitee_address.toLowerCase(),
+        },
+      ])
+
+    if (useError) throw useError
+
+   
