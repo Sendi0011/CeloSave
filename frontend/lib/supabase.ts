@@ -475,5 +475,22 @@ export async function savePoolToDatabase({
       }
     }
 
-    
+    // Log activity
+    await supabase.from('pool_activity').insert([
+      {
+        pool_id: poolId,
+        activity_type: 'pool_created',
+        user_address: creatorAddress.toLowerCase(),
+        description: `${poolType} pool created`,
+      },
+    ])
+
+    return { success: true, poolId, pool: pool[0] }
+  } catch (error) {
+    console.error('Failed to save pool:', error)
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Unknown error',
+    }
+  }
 }
