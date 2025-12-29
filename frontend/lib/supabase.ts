@@ -453,3 +453,27 @@ export async function savePoolToDatabase({
 
       if (membersError) throw membersError
 
+      // Update member profiles: increment total_groups_joined and active_groups
+      for (const member of members) {
+        await supabase.rpc('ensure_member_profile', { p_wallet_address: member.toLowerCase() })
+        
+        const { data: memberProfile } = await supabase
+          .from('member_profiles')
+          .select('total_groups_joined, active_groups')
+          .eq('wallet_address', member.toLowerCase())
+          .single()
+
+        if (memberProfile) {
+          await supabase
+            .from('member_profiles')
+            .update({
+              total_groups_joined: (memberProfile.total_groups_joined || 0) + 1,
+              active_groups: (memberProfile.active_groups || 0) + 1,
+            })
+            .eq('wallet_address', member.toLowerCase())
+        }
+      }
+    }
+
+    
+}
