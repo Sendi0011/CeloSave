@@ -102,3 +102,51 @@ export async function PATCH(req: NextRequest) {
   }
 }
 
+// POST - Award badge to user
+export async function POST(req: NextRequest) {
+  try {
+    const body = await req.json()
+    const { wallet_address, badge_type, badge_name, badge_description, badge_icon } = body
+
+    if (!wallet_address || !badge_type || !badge_name) {
+      return NextResponse.json(
+        { error: 'Missing required fields' },
+        { status: 400 }
+      )
+    }
+
+    // Ensure profile exists
+    await ensureMemberProfile(wallet_address)
+
+    // Award badge (will not duplicate due to UNIQUE constraint)
+    const { data, error } = await supabase
+      .from('member_badges')
+      .insert([
+        {
+          wallet_address: wallet_address.toLowerCase(),
+          badge_type,
+          badge_name,
+          badge_description: badge_description || null,
+          badge_icon: badge_icon || null,
+        },
+      ])
+      .select()
+      .single()
+
+    if (error) {
+      // If badge already exists, just return success
+      if (error.code === '23505') {
+        return NextResponse.json({ message: 'Badge already earned' })
+      }
+      throw error
+    }
+
+    return NextResponse.json(data)
+  } catch (error) {
+    console.error('Badge award error:', error)
+    return NextResponse.json(
+      { error: error instanceof Error ? error.message : 'Unknown error' },
+      { status: 500 }
+    )
+  }
+}
