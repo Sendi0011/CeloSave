@@ -365,4 +365,46 @@ export async function updateReputationAfterPayment(
   return updatedProfile
 }
 
-/
+// Helper function to save pool (updated with profile creation)
+export async function savePoolToDatabase({
+  name,
+  description,
+  poolType,
+  creatorAddress,
+  contractAddress,
+  tokenAddress,
+  members,
+  contributionAmount,
+  roundDuration,
+  frequency,
+  targetAmount,
+  deadline,
+  minimumDeposit,
+  withdrawalFee,
+  yieldEnabled,
+}: {
+  name: string
+  description: string | null
+  poolType: 'rotational' | 'target' | 'flexible'
+  creatorAddress: string
+  contractAddress: string
+  tokenAddress: string
+  members: string[]
+  contributionAmount?: string
+  roundDuration?: number
+  frequency?: string
+  targetAmount?: string
+  deadline?: string
+  minimumDeposit?: string
+  withdrawalFee?: string
+  yieldEnabled?: boolean
+}) {
+  try {
+    // Ensure creator has a profile
+    await ensureMemberProfile(creatorAddress)
+
+    // Ensure all members have profiles
+    for (const member of members) {
+      await ensureMemberProfile(member)
+    }
+
