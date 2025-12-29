@@ -408,3 +408,48 @@ export async function savePoolToDatabase({
       await ensureMemberProfile(member)
     }
 
+    // Insert pool
+    const { data: pool, error: poolError } = await supabase
+      .from('pools')
+      .insert([
+        {
+          name,
+          description,
+          type: poolType,
+          status: 'active',
+          creator_address: creatorAddress.toLowerCase(),
+          contract_address: contractAddress.toLowerCase(),
+          token_address: tokenAddress.toLowerCase(),
+          members_count: members.length,
+          contribution_amount: contributionAmount ? parseFloat(contributionAmount) : null,
+          round_duration: roundDuration || null,
+          frequency: frequency || null,
+          target_amount: targetAmount ? parseFloat(targetAmount) : null,
+          deadline: deadline ? new Date(deadline).toISOString() : null,
+          minimum_deposit: minimumDeposit ? parseFloat(minimumDeposit) : null,
+          withdrawal_fee: withdrawalFee ? parseFloat(withdrawalFee) : null,
+          yield_enabled: yieldEnabled || false,
+        },
+      ])
+      .select()
+
+    if (poolError) throw poolError
+    if (!pool || pool.length === 0) throw new Error('Failed to create pool')
+
+    const poolId = pool[0].id
+
+    // Insert members
+    if (members.length > 0) {
+      const memberData = members.map((address) => ({
+        pool_id: poolId,
+        member_address: address.toLowerCase(),
+        contribution_amount: contributionAmount ? parseFloat(contributionAmount) : 0,
+        status: 'pending' as const,
+      }))
+
+      const { error: membersError } = await supabase
+        .from('pool_members')
+        .insert(memberData)
+
+      if (membersError) throw membersError
+
