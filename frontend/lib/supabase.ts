@@ -297,3 +297,55 @@ export type Database = {
   }
 }
 
+// Helper function to ensure member profile exists
+export async function ensureMemberProfile(walletAddress: string) {
+  const { data, error } = await supabase
+    .from('member_profiles')
+    .select('*')
+    .eq('wallet_address', walletAddress.toLowerCase())
+    .single()
+
+  if (error && error.code === 'PGRST116') {
+    // Profile doesn't exist, create it
+    const { data: newProfile, error: createError } = await supabase
+      .from('member_profiles')
+      .insert([{ wallet_address: walletAddress.toLowerCase() }])
+      .select()
+      .single()
+
+    if (createError) throw createError
+    return newProfile
+  }
+
+  if (error) throw error
+  return data
+}
+
+// Helper function to update reputation after payment
+export async function updateReputationAfterPayment(
+  walletAddress: string,
+  poolId: string,
+  wasOnTime: boolean
+) {
+  const profile = await ensureMemberProfile(walletAddress)
+
+  const updates: any = {
+    last_active_at: new Date().toISOString(),
+  }
+
+  if (wasOnTime) {
+    updates.on_time_payments = (profile.on_time_payments || 0) + 1
+  } else {
+    updates.late_payments = (profile.late_payments || 0) + 1
+  }
+
+  const { data: updatedProfile, error } = await supabase
+    .from('member_profiles')
+    .update(updates)
+    .eq('wallet_address', walletAddress.toLowerCase())
+    .select()
+    .single()
+
+  if (error) throw error
+
+  
