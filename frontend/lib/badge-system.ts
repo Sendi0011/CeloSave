@@ -304,3 +304,5 @@ export async function triggerBadgeCheck(walletAddress: string, action: string) {
   }
 }
 
+// Export for use in API routes
+export { BADGE_DEFINITIONS as badges }
