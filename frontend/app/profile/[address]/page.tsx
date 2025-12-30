@@ -35,3 +35,26 @@ interface MemberProfile {
   created_at: string
 }
 
+interface Badge {
+  id: string
+  badge_type: string
+  badge_name: string
+  badge_description: string | null
+  badge_icon: string | null
+  earned_at: string
+}
+
+interface Pool {
+  id: string
+  pools: {
+    id: string
+    name: string
+    type: string
+    status: string
+    created_at: string
+  }
+  status: string
+  contribution_amount: number
+  joined_at: string
+}
+
