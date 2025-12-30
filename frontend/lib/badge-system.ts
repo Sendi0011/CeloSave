@@ -94,3 +94,53 @@ export const BADGE_DEFINITIONS = {
   }
 }
 
+/**
+ * Check and award eligible badges to a user
+ */
+export async function checkAndAwardBadges(walletAddress: string) {
+  try {
+    // Fetch user profile
+    const { data: profile, error: profileError } = await supabase
+      .from('member_profiles')
+      .select('*')
+      .eq('wallet_address', walletAddress.toLowerCase())
+      .single()
+
+    if (profileError || !profile) {
+      console.error('Failed to fetch profile:', profileError)
+      return
+    }
+
+    // Fetch existing badges
+    const { data: existingBadges } = await supabase
+      .from('member_badges')
+      .select('badge_type')
+      .eq('wallet_address', walletAddress.toLowerCase())
+
+    const existingBadgeTypes = new Set(existingBadges?.map(b => b.badge_type) || [])
+
+    // Check each badge definition
+    const newBadges = []
+    for (const [badgeType, badge] of Object.entries(BADGE_DEFINITIONS)) {
+      // Skip if already has badge
+      if (existingBadgeTypes.has(badgeType)) continue
+
+      // Check requirement (handle async requirements)
+      let eligible = false
+      if (typeof badge.requirement === 'function') {
+        const result = badge.requirement(profile)
+        eligible = result instanceof Promise ? await result : result
+      }
+
+      if (eligible) {
+        newBadges.push({
+          wallet_address: walletAddress.toLowerCase(),
+          badge_type: badgeType,
+          badge_name: badge.name,
+          badge_description: badge.description,
+          badge_icon: badge.icon,
+        })
+      }
+    }
+
+    
