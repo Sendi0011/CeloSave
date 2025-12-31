@@ -204,7 +204,7 @@ function generatePDFHTML(activities: any[], pools: any[], userAddress: string): 
 </head>
 <body>
   <div class="header">
-    <h1>📊 Ajo Analytics Report</h1>
+    <h1>📊 CeloSave Analytics Report</h1>
     <p>Generated on ${new Date().toLocaleDateString()}</p>
     <p>User: ${userAddress}</p>
   </div>
