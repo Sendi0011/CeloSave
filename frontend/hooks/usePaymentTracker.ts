@@ -90,3 +90,45 @@ export function usePaymentTracker({
   }
 }
 
+/**
+ * Manual function to record a payment
+ * Use this when you need explicit control over payment recording
+ */
+export async function recordPayment({
+  poolId,
+  memberAddress,
+  amount,
+  txHash,
+  wasOnTime = true,
+}: {
+  poolId: string
+  memberAddress: string
+  amount?: number
+  txHash?: string
+  wasOnTime?: boolean
+}) {
+  try {
+    const response = await fetch('/api/payments', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        poolId,
+        memberAddress,
+        amount,
+        txHash,
+        wasOnTime,
+      }),
+    })
+
+    if (!response.ok) {
+      throw new Error('Failed to record payment')
+    }
+
+    const data = await response.json()
+    return { success: true, data }
+  } catch (error) {
+    console.error('Failed to record payment:', error)
+    return { success: false, error }
+  }
+}
+
