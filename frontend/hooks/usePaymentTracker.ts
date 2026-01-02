@@ -132,3 +132,38 @@ export async function recordPayment({
   }
 }
 
+/**
+ * Function to mark a payment as late or missed
+ * Use this in a cron job or admin function
+ */
+export async function markPaymentStatus({
+  poolId,
+  memberAddress,
+  status,
+}: {
+  poolId: string
+  memberAddress: string
+  status: 'late' | 'missed'
+}) {
+  try {
+    const response = await fetch('/api/payments', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        poolId,
+        memberAddress,
+        status,
+      }),
+    })
+
+    if (!response.ok) {
+      throw new Error('Failed to update payment status')
+    }
+
+    const data = await response.json()
+    return { success: true, data }
+  } catch (error) {
+    console.error('Failed to update payment status:', error)
+    return { success: false, error }
+  }
+}
