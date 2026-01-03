@@ -1,3 +1,5 @@
+"use client"
+
 import type React from "react"
 import type { Metadata } from "next"
 import { GeistSans } from "geist/font/sans"
@@ -7,6 +9,7 @@ import "./globals.css"
 import { Web3Provider } from "@/components/web3-provider"
 import { Toaster } from "@/components/ui/sonner"
 import { Suspense } from "react"
+import { LowBalanceWarning } from "@/components/calendar/low-balance-warning"
 
 export const metadata: Metadata = {
   title: "Ajo - Community Savings on Base",
@@ -24,7 +27,8 @@ export default function RootLayout({
         <Suspense fallback={null}>
           <Web3Provider>
             {children}
-            {/* Add Toaster for notifications */}
+            {/* Add Toaster 4 notifications */}
+            <LowBalanceWarning />
             <Toaster position="top-right" />
           </Web3Provider>
         </Suspense>
