@@ -115,5 +115,55 @@ export function QRInviteDialog({ poolId, poolName }: QRInviteDialogProps) {
     toast.success("QR code downloaded!")
   }
 
-  
+  return (
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild>
+        <Button variant="outline" className="w-full">
+          <QrCode className="h-4 w-4 mr-2" />
+          Generate Invite Link
+        </Button>
+      </DialogTrigger>
+      <DialogContent className="max-w-md">
+        <DialogHeader>
+          <DialogTitle>Invite Members to {poolName}</DialogTitle>
+          <DialogDescription>
+            Generate a secure invite link or QR code to share with potential members
+          </DialogDescription>
+        </DialogHeader>
+
+        {!inviteData ? (
+          <div className="space-y-4 py-4">
+            {/* Expiration Setting */}
+            <div className="flex items-center justify-between space-x-2">
+              <div className="flex items-center gap-2">
+                <Calendar className="h-4 w-4 text-muted-foreground" />
+                <Label htmlFor="expiration" className="text-sm font-medium">
+                  Set Expiration
+                </Label>
+              </div>
+              <Switch
+                id="expiration"
+                checked={hasExpiration}
+                onCheckedChange={setHasExpiration}
+              />
+            </div>
+
+            {hasExpiration && (
+              <div className="pl-6 space-y-2">
+                <Label htmlFor="days" className="text-xs">Expires in (days)</Label>
+                <Input
+                  id="days"
+                  type="number"
+                  min={1}
+                  max={90}
+                  value={expiresInDays}
+                  onChange={(e) => setExpiresInDays(parseInt(e.target.value) || 7)}
+                />
+              </div>
+            )}
+
+            
+      </DialogContent>
+    </Dialog>
+  )
 }
