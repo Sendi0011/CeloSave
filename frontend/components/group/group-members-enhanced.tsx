@@ -41,3 +41,50 @@ interface Pool {
   creator_address: string
 }
 
+export function GroupMembersEnhanced({ groupId }: { groupId: string }) {
+  const [members, setMembers] = useState<Member[]>([])
+  const [pool, setPool] = useState<Pool | null>(null)
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    fetchMembers()
+  }, [groupId])
+
+  const fetchMembers = async () => {
+    try {
+      const response = await fetch(`/api/pools?id=${groupId}`)
+      const poolData = await response.json()
+
+      setPool(poolData)
+
+      if (poolData.pool_members) {
+        // Fetch profile data for each member
+        const membersWithProfiles = await Promise.all(
+          poolData.pool_members.map(async (member: Member) => {
+            try {
+              const profileRes = await fetch(`/api/profiles?address=${member.member_address}`)
+              const profileData = await profileRes.json()
+              return {
+                ...member,
+                profile: profileData.profile,
+              }
+            } catch (error) {
+              return member
+            }
+          })
+        )
+        setMembers(membersWithProfiles)
+      }
+    } catch (err) {
+      console.error('Failed to fetch members:', err)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const formatAddress = (address: string) => {
+    return `${address.slice(0, 6)}...${address.slice(-4)}`
+  }
+
+  
+}
