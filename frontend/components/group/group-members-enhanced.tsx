@@ -116,5 +116,52 @@ export function GroupMembersEnhanced({ groupId }: { groupId: string }) {
     )
   }
 
-  
+  return (
+    <div className="space-y-4">
+      <Card className="p-6">
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="text-lg font-semibold">Members ({members.length})</h3>
+          {pool && (
+            <QRInviteDialog poolId={pool.id} poolName={pool.name} />
+          )}
+        </div>
+
+        {members.length === 0 ? (
+          <div className="text-center py-8">
+            <UserPlus className="h-12 w-12 text-muted-foreground mx-auto mb-3" />
+            <p className="text-sm text-muted-foreground">No members yet</p>
+            <p className="text-xs text-muted-foreground mt-1">
+              Invite members using the button above
+            </p>
+          </div>
+        ) : (
+          <div className="space-y-3">
+            {members.map((member) => {
+              const repBadge = member.profile 
+                ? getReputationBadge(member.profile.reputation_score)
+                : null
+              const isCreator = pool?.creator_address.toLowerCase() === member.member_address.toLowerCase()
+
+              return (
+                <div
+                  key={member.id}
+                  className="flex items-center justify-between p-4 rounded-lg bg-muted/30 hover:bg-muted/50 transition-colors group"
+                >
+                  <div className="flex items-center gap-3 flex-1">
+                    {/* Avatar */}
+                    <Avatar className="h-12 w-12">
+                      <AvatarFallback className="bg-primary/10 text-primary font-semibold">
+                        {member.profile?.display_name 
+                          ? member.profile.display_name.charAt(0).toUpperCase()
+                          : member.member_address.slice(2, 4).toUpperCase()
+                        }
+                      </AvatarFallback>
+                    </Avatar>
+
+                    
+          )}
+        </Card>
+      )}
+    </div>
+  )
 }
