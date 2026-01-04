@@ -86,5 +86,35 @@ export function GroupMembersEnhanced({ groupId }: { groupId: string }) {
     return `${address.slice(0, 6)}...${address.slice(-4)}`
   }
 
+  const getReputationBadge = (score: number) => {
+    if (score >= 90) return { label: "Elite", color: "bg-yellow-500/10 text-yellow-500" }
+    if (score >= 75) return { label: "Trusted", color: "bg-green-500/10 text-green-500" }
+    if (score >= 50) return { label: "Reliable", color: "bg-blue-500/10 text-blue-500" }
+    return { label: "Building", color: "bg-gray-500/10 text-gray-500" }
+  }
+
+  const getStatusIcon = (status: string) => {
+    switch (status) {
+      case "paid":
+        return <CheckCircle2 className="h-4 w-4 text-green-500" />
+      case "late":
+        return <Clock className="h-4 w-4 text-yellow-500" />
+      case "pending":
+        return <Clock className="h-4 w-4 text-muted-foreground" />
+      default:
+        return <XCircle className="h-4 w-4 text-red-500" />
+    }
+  }
+
+  if (loading) {
+    return (
+      <Card className="p-6">
+        <div className="flex items-center justify-center py-8">
+          <Loader2 className="h-6 w-6 animate-spin text-primary" />
+        </div>
+      </Card>
+    )
+  }
+
   
 }
