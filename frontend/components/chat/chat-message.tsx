@@ -152,7 +152,21 @@ export function ChatMessage({ message, isOwnMessage, showAvatar, poolId }: ChatM
           )}
         </div>
 
-        
+        {/* Reactions (if any) */}
+        {message.reactions && message.reactions.length > 0 && (
+          <div className={cn("flex gap-1 mt-1", isOwnMessage && "justify-end")}>
+            {message.reactions.map((reaction, idx) => (
+              <button
+                key={idx}
+                className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-muted hover:bg-muted/80 text-xs transition-colors"
+                onClick={() => handleReaction(reaction.emoji)}
+              >
+                <span>{reaction.emoji}</span>
+                <span className="text-muted-foreground">{reaction.count}</span>
+              </button>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   )
