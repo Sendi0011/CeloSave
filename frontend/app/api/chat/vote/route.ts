@@ -88,6 +88,30 @@ export async function POST(req: NextRequest) {
 
     if (voteError) throw voteError
 
-    
+    // Fetch updated poll results
+    const { data: updatedPoll } = await supabase
+      .from('chat_polls')
+      .select(`
+        *,
+        options:chat_poll_options (
+          id,
+          option_text,
+          vote_count
+        )
+      `)
+      .eq('id', poll_id)
+      .single()
+
+    return NextResponse.json({
+      vote,
+      poll: updatedPoll,
+    })
+  } catch (error) {
+    console.error('Vote error:', error)
+    return NextResponse.json(
+      { error: error instanceof Error ? error.message : 'Unknown error' },
+      { status: 500 }
+    )
+  }
 }
 
