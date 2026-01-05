@@ -73,6 +73,21 @@ export async function POST(req: NextRequest) {
       }
     }
 
+    // Cast vote (trigger will auto-increment vote_count)
+    const { data: vote, error: voteError } = await supabase
+      .from('chat_poll_votes')
+      .insert([
+        {
+          poll_id,
+          option_id,
+          voter_address: voter_address.toLowerCase(),
+        },
+      ])
+      .select()
+      .single()
+
+    if (voteError) throw voteError
+
     
 }
 
