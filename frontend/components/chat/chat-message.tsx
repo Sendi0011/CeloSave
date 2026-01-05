@@ -56,7 +56,7 @@ export function ChatMessage({ message, isOwnMessage, showAvatar, poolId }: ChatM
 
   const handleReaction = (emoji: string) => {
     toast.success(`Reacted with ${emoji}`)
-    // In production, store reactions in database or XMTP metadata
+    //  In production, i will store reactions in database or XMTP metadata
   }
 
   return (
