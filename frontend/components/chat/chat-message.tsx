@@ -23,3 +23,41 @@ interface ChatMessageProps {
   poolId: string
 }
 
+export function ChatMessage({ message, isOwnMessage, showAvatar, poolId }: ChatMessageProps) {
+  const [showActions, setShowActions] = useState(false)
+
+  const formatAddress = (addr: string) => {
+    return `${addr.slice(0, 6)}...${addr.slice(-4)}`
+  }
+
+  const handlePinMessage = async () => {
+    try {
+      const response = await fetch('/api/chat/pins', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          pool_id: poolId,
+          message_id: message.id,
+          message_content: message.content,
+          message_sender: message.senderAddress,
+        }),
+      })
+
+      if (response.ok) {
+        toast.success('Message pinned!')
+      } else {
+        toast.error('Failed to pin message')
+      }
+    } catch (error) {
+      console.error('Failed to pin message:', error)
+      toast.error('Failed to pin message')
+    }
+  }
+
+  const handleReaction = (emoji: string) => {
+    toast.success(`Reacted with ${emoji}`)
+    // In production, store reactions in database or XMTP metadata
+  }
+
+  
+}
