@@ -147,7 +147,57 @@ export function PollCard({ poll, onVoteUpdate }: PollCardProps) {
                   isSelected && "opacity-50"
                 )}
               >
-                
+                {/* Background progress bar */}
+                {(hasVoted || isClosed) && (
+                  <div
+                    className={cn(
+                      "absolute inset-0 transition-all duration-500",
+                      isUserChoice
+                        ? "bg-primary/20"
+                        : "bg-muted"
+                    )}
+                    style={{ width: `${percentage}%` }}
+                  />
+                )}
+
+                {/* Content */}
+                <div className="relative flex items-center justify-between gap-2">
+                  <div className="flex items-center gap-2 flex-1">
+                    {isUserChoice && (
+                      <Check className="h-4 w-4 text-primary flex-shrink-0" />
+                    )}
+                    <span className="text-sm font-medium">{option.option_text}</span>
+                  </div>
+
+                  {(hasVoted || isClosed) && (
+                    <div className="flex items-center gap-2 flex-shrink-0">
+                      <span className="text-sm font-bold">{percentage}%</span>
+                      <span className="text-xs text-muted-foreground">
+                        ({option.vote_count})
+                      </span>
+                    </div>
+                  )}
+                </div>
+              </button>
+            </div>
+          )
+        })}
+      </div>
+
+      {/* Footer */}
+      <div className="flex items-center justify-between text-xs text-muted-foreground pt-2 border-t">
+        <span>{totalVotes} vote{totalVotes !== 1 ? 's' : ''}</span>
+        <span>
+          Created {formatDistanceToNow(new Date(poll.created_at), { addSuffix: true })}
+        </span>
+      </div>
+
+      {/* Help text */}
+      {!hasVoted && !isClosed && (
+        <p className="text-xs text-muted-foreground text-center">
+          Click an option to vote
+        </p>
+      )}
     </Card>
   )
 }
