@@ -113,4 +113,19 @@ export function useTransactionExport(): UseTransactionExportReturn {
   };
 }
 
-
+function buildQueryParams(options: ExportOptions): string {
+  const params = new URLSearchParams();
+  
+  if (options.filters?.type) {
+    params.append('type', options.filters.type.join(','));
+  }
+  if (options.filters?.status) {
+    params.append('status', options.filters.status.join(','));
+  }
+  if (options.dateRange) {
+    params.append('startDate', options.dateRange.start.toISOString());
+    params.append('endDate', options.dateRange.end.toISOString());
+  }
+  
+  return params.toString();
+}
