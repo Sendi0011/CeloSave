@@ -318,5 +318,27 @@ export function TransactionDetailModal({
   );
 }
 
+function DetailItem({ label, value }: { label: string; value: string }) {
+  return (
+    <div>
+      <p className="text-sm text-muted-foreground">{label}</p>
+      <p className="font-medium mt-1">{value}</p>
+    </div>
+  );
+}
 
+function getStatusColorClass(status: string) {
+  switch (status) {
+    case 'COMPLETED':
+      return 'bg-primary/10 text-primary border-primary/20';
+    case 'PENDING':
+    case 'PROCESSING':
+      return 'bg-yellow-500/10 text-yellow-600 dark:text-yellow-500 border-yellow-500/20';
+    case 'FAILED':
+    case 'CANCELLED':
+    case 'REVERTED':
+      return 'bg-destructive/10 text-destructive border-destructive/20';
+    default:
+      return 'bg-muted text-muted-foreground';
+  }
 }
