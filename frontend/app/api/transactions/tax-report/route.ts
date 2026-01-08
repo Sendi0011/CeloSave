@@ -82,5 +82,31 @@ export async function POST(request: NextRequest) {
       isTaxable: tx.transaction_type === 'PAYOUT',
     }));
     
+    // Save report
+    const { data: report, error: reportError } = await supabase
+      .from('tax_reports')
+      .upsert([{
+        user_address: userAddress.toLowerCase(),
+        tax_year: year,
+        quarter: quarter || null,
+        summary,
+        transactions: taxTransactions,
+        format: 'PDF',
+        url: `/api/transactions/tax-report/${userAddress}/${year}${quarter ? `/${quarter}` : ''}/download`,
+      }], {
+        onConflict: 'user_address,tax_year,quarter',
+      })
+      .select()
+      .single();
     
+    if (reportError) throw reportError;
+    
+    return NextResponse.json({ report });
+  } catch (error) {
+    console.error('Tax report error:', error);
+    return NextResponse.json(
+      { error: error instanceof Error ? error.message : 'Unknown error' },
+      { status: 500 }
+    );
+  }
 }
