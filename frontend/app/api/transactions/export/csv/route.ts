@@ -52,7 +52,57 @@ export async function POST(request: NextRequest) {
     // Generate CSV headers
     const headers = selectedColumns.map((col: any) => col.label).join(',');
     
-    
+    // Generate CSV rows
+    const rows = (data || []).map(tx => {
+      return selectedColumns.map((col: any) => {
+        let value = '';
+        
+        switch (col.key) {
+          case 'timestamp':
+            value = new Date(tx.timestamp).toLocaleString();
+            break;
+          case 'type':
+            value = tx.transaction_type;
+            break;
+          case 'status':
+            value = tx.transaction_status;
+            break;
+          case 'category':
+            value = tx.transaction_category;
+            break;
+          case 'amount':
+            value = tx.amount;
+            break;
+          case 'currency':
+            value = tx.currency;
+            break;
+          case 'poolName':
+            value = tx.pools?.name || '';
+            break;
+          case 'description':
+            value = tx.description || '';
+            break;
+          case 'hash':
+            value = tx.tx_hash;
+            break;
+          case 'blockNumber':
+            value = tx.block_number?.toString() || '';
+            break;
+          case 'gasFee':
+            value = tx.gas_fee || '';
+            break;
+          case 'userAddress':
+            value = tx.user_address;
+            break;
+          case 'userName':
+            value = tx.member_profiles?.display_name || '';
+            break;
+        }
+        
+        // Escape commas and quotes
+        return `"${value.toString().replace(/"/g, '""')}"`;
+      }).join(',');
+    });
     
     const csv = [headers, ...rows].join('\n');
     
