@@ -54,3 +54,56 @@ const TRANSACTION_CATEGORIES: TransactionCategory[] = [
   'OTHER',
 ];
 
+export function TransactionFilters({ filters, onChange }: TransactionFiltersProps) {
+  const [isOpen, setIsOpen] = useState(false);
+
+  const activeFilterCount = [
+    filters.type?.length,
+    filters.status?.length,
+    filters.category?.length,
+    filters.dateRange ? 1 : 0,
+    filters.isBookmarked ? 1 : 0,
+  ].filter(Boolean).length;
+
+  const handleTypeToggle = (type: TransactionType) => {
+    const currentTypes = filters.type || [];
+    const newTypes = currentTypes.includes(type)
+      ? currentTypes.filter((t) => t !== type)
+      : [...currentTypes, type];
+
+    onChange({
+      ...filters,
+      type: newTypes.length > 0 ? newTypes : undefined,
+    });
+  };
+
+  const handleStatusToggle = (status: TransactionStatus) => {
+    const currentStatuses = filters.status || [];
+    const newStatuses = currentStatuses.includes(status)
+      ? currentStatuses.filter((s) => s !== status)
+      : [...currentStatuses, status];
+
+    onChange({
+      ...filters,
+      status: newStatuses.length > 0 ? newStatuses : undefined,
+    });
+  };
+
+  const handleCategoryToggle = (category: TransactionCategory) => {
+    const currentCategories = filters.category || [];
+    const newCategories = currentCategories.includes(category)
+      ? currentCategories.filter((c) => c !== category)
+      : [...currentCategories, category];
+
+    onChange({
+      ...filters,
+      category: newCategories.length > 0 ? newCategories : undefined,
+    });
+  };
+
+  const clearFilters = () => {
+    onChange({});
+  };
+
+  
+}
