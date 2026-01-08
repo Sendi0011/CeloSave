@@ -76,3 +76,40 @@ export async function POST(request: NextRequest) {
   }
 }
 
+export async function GET(request: NextRequest) {
+  try {
+    const { searchParams } = new URL(request.url);
+    const transactionId = searchParams.get('transactionId');
+    
+    if (!transactionId) {
+      return NextResponse.json(
+        { error: 'Transaction ID required' },
+        { status: 400 }
+      );
+    }
+    
+    const { data, error } = await supabase
+      .from('transaction_receipts')
+      .select('*')
+      .eq('transaction_id', transactionId)
+      .single();
+    
+    if (error) {
+      if (error.code === 'PGRST116') {
+        return NextResponse.json(
+          { error: 'Receipt not found' },
+          { status: 404 }
+        );
+      }
+      throw error;
+    }
+    
+    return NextResponse.json({ receipt: data });
+  } catch (error) {
+    console.error('Receipt fetch error:', error);
+    return NextResponse.json(
+      { error: error instanceof Error ? error.message : 'Unknown error' },
+      { status: 500 }
+    );
+  }
+}
