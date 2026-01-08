@@ -85,3 +85,76 @@ export async function GET(
   }
 }
 
+export async function PATCH(
+  request: NextRequest,
+  { params }: { params: { id: string } }
+) {
+  try {
+    const body = await request.json();
+    
+    const allowedUpdates = [
+      'notes',
+      'tags',
+      'is_bookmarked',
+      'transaction_category',
+      'description',
+    ];
+    
+    const updates: any = {};
+    Object.keys(body).forEach(key => {
+      if (allowedUpdates.includes(key)) {
+        updates[key] = body[key];
+      }
+    });
+    
+    if (Object.keys(updates).length === 0) {
+      return NextResponse.json(
+        { error: 'No valid fields to update' },
+        { status: 400 }
+      );
+    }
+    
+    const { data, error } = await supabase
+      .from('transactions')
+      .update(updates)
+      .eq('id', params.id)
+      .select()
+      .single();
+    
+    if (error) {
+      throw error;
+    }
+    
+    return NextResponse.json({ transaction: data });
+  } catch (error) {
+    console.error('Transaction update error:', error);
+    return NextResponse.json(
+      { error: error instanceof Error ? error.message : 'Unknown error' },
+      { status: 500 }
+    );
+  }
+}
+
+export async function DELETE(
+  request: NextRequest,
+  { params }: { params: { id: string } }
+) {
+  try {
+    const { error } = await supabase
+      .from('transactions')
+      .delete()
+      .eq('id', params.id);
+    
+    if (error) {
+      throw error;
+    }
+    
+    return NextResponse.json({ success: true });
+  } catch (error) {
+    console.error('Transaction delete error:', error);
+    return NextResponse.json(
+      { error: error instanceof Error ? error.message : 'Unknown error' },
+      { status: 500 }
+    );
+  }
+}
