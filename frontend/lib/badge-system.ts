@@ -8,9 +8,8 @@ export const BADGE_DEFINITIONS = {
     name: "Early Adopter",
     description: "Joined in the first 100 members",
     icon: "🚀",
-    requirement: (profile: any) => {
-      // Check if user ID is in first 100
-      return true // Implement your own logic
+    requirement: (profile: any) => { 
+      return true 
     }
   },
   trusted_saver: {
@@ -111,7 +110,6 @@ export async function checkAndAwardBadges(walletAddress: string) {
       return []
     }
 
-    // Fetch existing badges
     const { data: existingBadges } = await supabase
       .from('member_badges')
       .select('badge_type')
@@ -122,10 +120,8 @@ export async function checkAndAwardBadges(walletAddress: string) {
     // Check each badge definition
     const newBadges = []
     for (const [badgeType, badge] of Object.entries(BADGE_DEFINITIONS)) {
-      // Skip if already has badge
       if (existingBadgeTypes.has(badgeType)) continue
 
-      // Check requirement (handle async requirements)
       let eligible = false
       if (typeof badge.requirement === 'function') {
         const result = badge.requirement(profile)
@@ -290,7 +286,6 @@ export async function triggerBadgeCheck(walletAddress: string, action: string) {
   // newBadges is now guaranteed to be an array (never undefined)
   if (newBadges.length > 0) {
     console.log(`🎉 Awarded ${newBadges.length} new badge(s)!`, newBadges)
-    // You could trigger a notification here
     return {
       success: true,
       newBadges,
@@ -305,5 +300,4 @@ export async function triggerBadgeCheck(walletAddress: string, action: string) {
   }
 }
 
-// Export for use in API routes
 export { BADGE_DEFINITIONS as badges }
