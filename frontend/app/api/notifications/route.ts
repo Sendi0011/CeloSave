@@ -124,7 +124,3 @@ async function sendBrowserNotification(
   console.log(`Browser notification for ${userAddress}: ${title}`)
 }
 
-// ========================================
-// app/api/notifications/[id]/route.ts
-// ========================================
-
