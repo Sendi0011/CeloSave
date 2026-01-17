@@ -67,5 +67,11 @@ export function useTransactionSearch({
     searchTransactions();
   }, [debouncedQuery, userAddress, limit]);
 
-  
+  return {
+    query,
+    setQuery,
+    results,
+    loading,
+    error,
+  };
 }
