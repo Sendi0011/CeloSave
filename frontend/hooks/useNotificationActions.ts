@@ -73,5 +73,11 @@ export function useNotificationActions(userAddress: string) {
     }
   };
 
-  
+  return {
+    markAsRead,
+    archive,
+    deleteNotification,
+    bulkMarkRead,
+    bulkArchive,
+  };
 }
