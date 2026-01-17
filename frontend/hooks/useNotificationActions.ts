@@ -56,5 +56,22 @@ export function useNotificationActions(userAddress: string) {
     }
   };
 
+  const bulkArchive = async (notificationIds: string[]) => {
+    try {
+      await fetch('/api/notifications/bulk', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'ARCHIVE',
+          notificationIds,
+          userAddress,
+        }),
+      });
+      toast.success(`Archived ${notificationIds.length} notifications`);
+    } catch (error) {
+      toast.error('Failed to archive');
+    }
+  };
+
   
 }
