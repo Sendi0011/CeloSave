@@ -28,5 +28,16 @@ export function useNotificationActions(userAddress: string) {
     }
   };
 
+  const deleteNotification = async (notificationId: string) => {
+    try {
+      await fetch(`/api/notifications/${notificationId}`, {
+        method: 'DELETE',
+      });
+      toast.success('Notification deleted');
+    } catch (error) {
+      toast.error('Failed to delete notification');
+    }
+  };
+
   
 }
