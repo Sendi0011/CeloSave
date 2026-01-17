@@ -40,5 +40,11 @@ export function useNotificationPreferences(userAddress: string) {
     }
   };
 
- 
+  return {
+    preferences,
+    loading,
+    error,
+    updatePreferences,
+    refetch: fetchPreferences,
+  };
 }
