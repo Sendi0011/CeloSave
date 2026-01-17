@@ -15,5 +15,18 @@ export function useNotificationActions(userAddress: string) {
     }
   };
 
+  const archive = async (notificationId: string) => {
+    try {
+      await fetch(`/api/notifications/${notificationId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ isArchived: true }),
+      });
+      toast.success('Notification archived');
+    } catch (error) {
+      toast.error('Failed to archive notification');
+    }
+  };
+
   
 }
