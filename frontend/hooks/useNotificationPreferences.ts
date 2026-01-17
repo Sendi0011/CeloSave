@@ -26,5 +26,19 @@ export function useNotificationPreferences(userAddress: string) {
     fetchPreferences();
   }, [fetchPreferences]);
 
-  
+  const updatePreferences = async (updates: any) => {
+    try {
+      const response = await fetch('/api/notifications/preferences', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userAddress, ...updates }),
+      });
+      const data = await response.json();
+      setPreferences(data.preferences);
+    } catch (err) {
+      throw err;
+    }
+  };
+
+ 
 }
