@@ -39,5 +39,22 @@ export function useNotificationActions(userAddress: string) {
     }
   };
 
+  const bulkMarkRead = async (notificationIds: string[]) => {
+    try {
+      await fetch('/api/notifications/bulk', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'MARK_READ',
+          notificationIds,
+          userAddress,
+        }),
+      });
+      toast.success(`Marked ${notificationIds.length} notifications as read`);
+    } catch (error) {
+      toast.error('Failed to mark as read');
+    }
+  };
+
   
 }
