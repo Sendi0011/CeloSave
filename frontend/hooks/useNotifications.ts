@@ -56,5 +56,32 @@ export function useNotifications({
     }
   }, [userAddress, unreadOnly, type, priority, limit]);
 
+  useEffect(() => {
+    fetchNotifications();
+
+    if (!autoRefresh) return;
+
+    // Set up real-time subscription
+    const channel = supabase
+      .channel('notifications')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'notifications',
+          filter: `user_address=eq.${userAddress.toLowerCase()}`,
+        },
+        () => {
+          fetchNotifications();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      channel.unsubscribe();
+    };
+  }, [fetchNotifications, autoRefresh, userAddress]);
+
   
 }
