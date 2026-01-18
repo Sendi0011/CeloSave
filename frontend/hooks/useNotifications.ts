@@ -96,5 +96,12 @@ export function useNotifications({
     }
   };
 
-  
+  return {
+    notifications,
+    loading,
+    error,
+    unreadCount,
+    markAllAsRead,
+    refetch: fetchNotifications,
+  };
 }
