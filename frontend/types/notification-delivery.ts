@@ -24,4 +24,10 @@ export interface NotificationDelivery {
     attachments?: EmailAttachment[];
   }
   
+  export interface EmailAttachment {
+    filename: string;
+    content: string; // base64
+    contentType: string;
+  }
+  
   
