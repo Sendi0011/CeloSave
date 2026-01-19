@@ -30,4 +30,16 @@ export interface NotificationDelivery {
     contentType: string;
   }
   
+  export interface PushDeliveryData {
+    title: string;
+    body: string;
+    icon?: string;
+    badge?: string;
+    image?: string;
+    data?: Record<string, any>;
+    actions?: PushAction[];
+    tag?: string;
+    requireInteraction?: boolean;
+  }
+  
   
