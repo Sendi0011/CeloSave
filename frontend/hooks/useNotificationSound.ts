@@ -18,5 +18,14 @@ export function useNotificationSound(enabled: boolean = true) {
     }
   }, []);
 
-  
+  const play = (type: 'default' | 'payment' | 'achievement' | 'urgent' = 'default') => {
+    if (!enabled || !audioRef.current) return;
+
+    audioRef.current.src = SOUNDS[type];
+    audioRef.current.play().catch((err) => {
+      console.error('Failed to play notification sound:', err);
+    });
+  };
+
+  return { play };
 }
