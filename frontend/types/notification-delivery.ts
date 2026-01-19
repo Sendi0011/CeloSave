@@ -42,4 +42,8 @@ export interface NotificationDelivery {
     requireInteraction?: boolean;
   }
   
-  
+  export interface PushAction {
+    action: string;
+    title: string;
+    icon?: string;
+  }
