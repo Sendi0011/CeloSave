@@ -12,4 +12,11 @@ export interface NotificationGroup {
     isArchived: boolean;
   }
   
-  
+  export interface NotificationGroupRule {
+    id: string;
+    type: NotificationType;
+    groupBy: ('poolId' | 'type' | 'fromUser')[];
+    maxAge: number; // hours
+    maxCount: number;
+    isActive: boolean;
+  }
