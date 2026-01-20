@@ -7,4 +7,16 @@ export interface NotificationEvent {
     metadata: Record<string, any>;
   }
   
+  export type NotificationEventType =
+    | 'CREATED'
+    | 'SENT'
+    | 'DELIVERED'
+    | 'READ'
+    | 'CLICKED'
+    | 'ARCHIVED'
+    | 'DELETED'
+    | 'FAILED'
+    | 'RETRIED'
+    | 'EXPIRED';
+  
   
