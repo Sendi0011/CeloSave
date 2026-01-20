@@ -19,4 +19,13 @@ export interface NotificationEvent {
     | 'RETRIED'
     | 'EXPIRED';
   
-  
+  export interface NotificationAction {
+    actionId: string;
+    label: string;
+    url?: string;
+    handler?: string; // Function name to call
+    data?: Record<string, any>;
+    style?: 'primary' | 'secondary' | 'destructive';
+    requiresConfirmation?: boolean;
+    confirmationMessage?: string;
+  }
