@@ -60,4 +60,9 @@ export interface NotificationPreferences {
     polls: boolean;
   }
   
-  
+  export type DigestFrequency = 
+    | 'DISABLED'
+    | 'REALTIME'
+    | 'DAILY'
+    | 'WEEKLY'
+    | 'MONTHLY';
