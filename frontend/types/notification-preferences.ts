@@ -36,4 +36,12 @@ export interface NotificationPreferences {
     autoMarkReadAfter?: number; // seconds
   }
   
- 
+  export interface SchedulePreferences {
+    quietHoursEnabled: boolean;
+    quietHoursStart: string; // HH:MM
+    quietHoursEnd: string; // HH:MM
+    timezone: string;
+    pausedUntil?: string; // ISO date
+  }
+  
+  
