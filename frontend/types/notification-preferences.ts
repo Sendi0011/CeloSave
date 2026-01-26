@@ -44,4 +44,20 @@ export interface NotificationPreferences {
     pausedUntil?: string; // ISO date
   }
   
+  export interface NotificationTypePreferences {
+    paymentReminders: boolean;
+    paymentDue: boolean;
+    paymentOverdue: boolean;
+    payouts: boolean;
+    poolInvites: boolean;
+    poolActivity: boolean;
+    achievements: boolean;
+    reputationChanges: boolean;
+    milestones: boolean;
+    announcements: boolean;
+    systemUpdates: boolean;
+    emergencies: boolean;
+    polls: boolean;
+  }
+  
   
