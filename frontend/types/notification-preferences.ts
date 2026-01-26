@@ -20,4 +20,20 @@ export interface NotificationPreferences {
     digestDays?: number[]; // 0-6 for weekly digest
   }
   
+  export interface PushPreferences {
+    enabled: boolean;
+    subscription?: PushSubscription;
+    deviceTokens: string[];
+  }
   
+  export interface InAppPreferences {
+    enabled: boolean;
+    showBadge: boolean;
+    playSound: boolean;
+    soundFile?: string;
+    showPreview: boolean;
+    groupSimilar: boolean;
+    autoMarkReadAfter?: number; // seconds
+  }
+  
+ 
