@@ -22,3 +22,24 @@ export type NotificationType =
   | 'POLL_CREATED'         // New poll in pool
   | 'POLL_CLOSING';        // Poll closing soon
 
+export type NotificationPriority = 
+  | 'LOW'       // General info
+  | 'MEDIUM'    // Standard notifications
+  | 'HIGH'      // Important, needs attention
+  | 'URGENT';   // Critical, immediate action required
+
+export type NotificationChannel = 
+  | 'IN_APP'    // In-app notification center
+  | 'EMAIL'     // Email notification
+  | 'PUSH'      // Browser push notification
+  | 'SMS';      // SMS (future)
+
+export type NotificationStatus = 
+  | 'PENDING'   // Created but not sent
+  | 'SENT'      // Sent to user
+  | 'DELIVERED' // Confirmed delivery
+  | 'READ'      // User read notification
+  | 'CLICKED'   // User clicked action
+  | 'FAILED'    // Delivery failed
+  | 'EXPIRED';  // Notification expired
+
