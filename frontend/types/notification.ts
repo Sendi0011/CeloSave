@@ -43,3 +43,28 @@ export type NotificationStatus =
   | 'FAILED'    // Delivery failed
   | 'EXPIRED';  // Notification expired
 
+export interface Notification {
+  id: string;
+  userId: string;
+  userAddress: string;
+  type: NotificationType;
+  priority: NotificationPriority;
+  status: NotificationStatus;
+  title: string;
+  message: string;
+  actionUrl?: string;
+  actionLabel?: string;
+  actionData?: Record<string, any>;
+  metadata: NotificationMetadata;
+  channels: NotificationChannel[];
+  isRead: boolean;
+  isArchived: boolean;
+  readAt?: string;
+  archivedAt?: string;
+  deliveredAt?: string;
+  clickedAt?: string;
+  createdAt: string;
+  expiresAt?: string;
+  groupKey?: string; // For grouping similar notifications
+}
+
