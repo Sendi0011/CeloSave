@@ -68,3 +68,23 @@ export interface Notification {
   groupKey?: string; // For grouping similar notifications
 }
 
+export interface NotificationMetadata {
+  poolId?: string;
+  poolName?: string;
+  poolType?: string;
+  transactionId?: string;
+  amount?: string;
+  currency?: string;
+  dueDate?: string;
+  fromUser?: string;
+  fromUserName?: string;
+  badgeType?: string;
+  badgeName?: string;
+  icon?: string;
+  iconColor?: string;
+  image?: string;
+  pointsChange?: number;
+  previousScore?: number;
+  newScore?: number;
+  [key: string]: any;
+}
