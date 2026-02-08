@@ -273,3 +273,20 @@ export interface NotificationCreateInput {
   expiresIn?: number; // hours
 }
 
+export interface NotificationUpdateInput {
+  isRead?: boolean;
+  isArchived?: boolean;
+  readAt?: string;
+  archivedAt?: string;
+}
+
+export interface NotificationFilterOptions {
+  types?: NotificationType[];
+  priorities?: NotificationPriority[];
+  isRead?: boolean;
+  isArchived?: boolean;
+  startDate?: Date;
+  endDate?: Date;
+  poolId?: string;
+  searchQuery?: string;
+}
