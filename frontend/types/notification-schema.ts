@@ -205,3 +205,57 @@ CREATE TRIGGER notification_mark_read
   FOR EACH ROW
   EXECUTE FUNCTION mark_notification_read();
 
+-- ============================================================================
+-- FUNCTIONS
+-- ============================================================================
+
+-- Get unread count for user
+CREATE OR REPLACE FUNCTION get_unread_notification_count(p_user_address TEXT)
+RETURNS INTEGER AS $$
+BEGIN
+  RETURN (
+    SELECT COUNT(*)
+    FROM notifications
+    WHERE user_address = LOWER(p_user_address)
+      AND is_read = FALSE
+      AND is_archived = FALSE
+      AND (expires_at IS NULL OR expires_at > NOW())
+  );
+END;
+$$ LANGUAGE plpgsql;
+
+-- Clean up expired notifications
+CREATE OR REPLACE FUNCTION cleanup_expired_notifications()
+RETURNS INTEGER AS $$
+DECLARE
+  deleted_count INTEGER;
+BEGIN
+  DELETE FROM notifications
+  WHERE expires_at IS NOT NULL AND expires_at < NOW()
+  RETURNING COUNT(*) INTO deleted_count;
+  
+  RETURN deleted_count;
+END;
+$$ LANGUAGE plpgsql;
+
+-- Get notification preferences with defaults
+CREATE OR REPLACE FUNCTION get_notification_preferences(p_user_address TEXT)
+RETURNS notification_preferences AS $$
+DECLARE
+  prefs notification_preferences;
+BEGIN
+  SELECT * INTO prefs
+  FROM notification_preferences
+  WHERE user_address = LOWER(p_user_address);
+  
+  IF NOT FOUND THEN
+    INSERT INTO notification_preferences (user_address)
+    VALUES (LOWER(p_user_address))
+    RETURNING * INTO prefs;
+  END IF;
+  
+  RETURN prefs;
+END;
+$$ LANGUAGE plpgsql;
+`;
+
