@@ -154,3 +154,54 @@ CREATE INDEX IF NOT EXISTS idx_events_notification
 CREATE INDEX IF NOT EXISTS idx_events_user 
   ON notification_events(user_address, timestamp DESC);
 
+-- ============================================================================
+-- TRIGGERS
+-- ============================================================================
+
+-- Auto-update updated_at on preferences
+CREATE OR REPLACE FUNCTION update_notification_preferences_updated_at()
+RETURNS TRIGGER AS $$
+BEGIN
+  NEW.updated_at = NOW();
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER notification_preferences_updated_at
+  BEFORE UPDATE ON notification_preferences
+  FOR EACH ROW
+  EXECUTE FUNCTION update_notification_preferences_updated_at();
+
+-- Auto-create notification event on insert
+CREATE OR REPLACE FUNCTION create_notification_event()
+RETURNS TRIGGER AS $$
+BEGIN
+  INSERT INTO notification_events (notification_id, event_type, user_address, metadata)
+  VALUES (NEW.id, 'CREATED', NEW.user_address, '{}');
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER notification_created_event
+  AFTER INSERT ON notifications
+  FOR EACH ROW
+  EXECUTE FUNCTION create_notification_event();
+
+-- Auto-mark as read when read_at is set
+CREATE OR REPLACE FUNCTION mark_notification_read()
+RETURNS TRIGGER AS $$
+BEGIN
+  IF NEW.read_at IS NOT NULL AND OLD.read_at IS NULL THEN
+    NEW.is_read = TRUE;
+    INSERT INTO notification_events (notification_id, event_type, user_address, metadata)
+    VALUES (NEW.id, 'READ', NEW.user_address, jsonb_build_object('read_at', NEW.read_at));
+  END IF;
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER notification_mark_read
+  BEFORE UPDATE ON notifications
+  FOR EACH ROW
+  EXECUTE FUNCTION mark_notification_read();
+
