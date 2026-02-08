@@ -259,3 +259,17 @@ END;
 $$ LANGUAGE plpgsql;
 `;
 
+// Export utility types
+export interface NotificationCreateInput {
+  userAddress: string;
+  type: NotificationType;
+  priority?: NotificationPriority;
+  title: string;
+  message: string;
+  actionUrl?: string;
+  actionLabel?: string;
+  metadata?: NotificationMetadata;
+  channels?: NotificationChannel[];
+  expiresIn?: number; // hours
+}
+
