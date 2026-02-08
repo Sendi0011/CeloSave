@@ -120,3 +120,37 @@ CREATE TABLE IF NOT EXISTS notification_events (
   ))
 );
 
+-- ============================================================================
+-- INDEXES FOR PERFORMANCE
+-- ============================================================================
+
+CREATE INDEX IF NOT EXISTS idx_notifications_user_created 
+  ON notifications(user_address, created_at DESC);
+
+CREATE INDEX IF NOT EXISTS idx_notifications_user_unread 
+  ON notifications(user_address, is_read) WHERE is_read = FALSE;
+
+CREATE INDEX IF NOT EXISTS idx_notifications_type 
+  ON notifications(notification_type);
+
+CREATE INDEX IF NOT EXISTS idx_notifications_priority 
+  ON notifications(priority);
+
+CREATE INDEX IF NOT EXISTS idx_notifications_expires 
+  ON notifications(expires_at) WHERE expires_at IS NOT NULL;
+
+CREATE INDEX IF NOT EXISTS idx_notifications_group 
+  ON notifications(group_key) WHERE group_key IS NOT NULL;
+
+CREATE INDEX IF NOT EXISTS idx_deliveries_notification 
+  ON notification_deliveries(notification_id);
+
+CREATE INDEX IF NOT EXISTS idx_deliveries_status 
+  ON notification_deliveries(status);
+
+CREATE INDEX IF NOT EXISTS idx_events_notification 
+  ON notification_events(notification_id, timestamp DESC);
+
+CREATE INDEX IF NOT EXISTS idx_events_user 
+  ON notification_events(user_address, timestamp DESC);
+
