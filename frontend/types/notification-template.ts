@@ -29,4 +29,14 @@ export interface NotificationTemplate {
     example?: string;
   }
   
-  
+  export interface NotificationTemplateData {
+    templateKey: string;
+    userAddress: string;
+    variables: Record<string, any>;
+    overrides?: {
+      title?: string;
+      message?: string;
+      channels?: NotificationChannel[];
+      priority?: NotificationPriority;
+    };
+  }
