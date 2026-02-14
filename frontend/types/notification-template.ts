@@ -20,4 +20,13 @@ export interface NotificationTemplate {
     updatedAt: string;
   }
   
+  export interface TemplateVariable {
+    key: string;
+    label: string;
+    type: 'string' | 'number' | 'date' | 'currency';
+    required: boolean;
+    default?: any;
+    example?: string;
+  }
+  
   
